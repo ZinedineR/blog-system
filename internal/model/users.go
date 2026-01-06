@@ -50,9 +50,7 @@ type DeleteUserRes struct {
 }
 
 type GetAllUsersReq struct {
-	Page   PaginationParam
-	Filter FilterParams
-	Sort   OrderParam
+	ListReq
 }
 type GetAllUsersRes struct {
 	PaginationData[entity.Users]

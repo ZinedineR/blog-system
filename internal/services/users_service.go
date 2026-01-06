@@ -99,7 +99,7 @@ func (s *UserServiceImpl) Login(ctx context.Context, req *model.CreateUserReq) (
 func (s *UserServiceImpl) Find(ctx context.Context, req *model.GetAllUsersReq) (
 	*model.GetAllUsersRes, *exception.Exception,
 ) {
-	result, err := s.userRepo.FindByPagination(ctx, s.db, req.Page, req.Sort, req.Filter)
+	result, err := s.userRepo.FindByPagination(ctx, s.db, req.Page, req.Order, req.Filter)
 	if err != nil {
 		return nil, exception.Internal("failed to get user", err)
 	}

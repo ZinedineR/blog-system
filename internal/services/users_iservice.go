@@ -7,7 +7,7 @@ import (
 )
 
 type UserService interface {
-	// CRUD operations for Book
+	// CRUD operations for User
 	Register(
 		ctx context.Context, req *model.CreateUserReq,
 	) (*model.CreateUserRes, *exception.Exception)
