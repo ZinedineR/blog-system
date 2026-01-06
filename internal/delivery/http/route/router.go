@@ -1,28 +1,30 @@
 package route
 
 import (
-	"boiler-plate-clean/internal/delivery/http"
+	"blog-system/internal/delivery/http"
+	api "blog-system/internal/delivery/http/middleware"
+
 	"github.com/gin-gonic/gin"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Router struct {
-	App            *gin.Engine
-	ExampleHandler *http.ExampleHTTPHandler
+	App         *gin.Engine
+	Middleware  *api.Middleware
+	UserHandler *http.UserHTTPHandler
 }
 
 func (h *Router) Setup() {
-	api := h.App.Group("")
+	h.App.Use(h.Middleware.ErrorHandler)
+	baseApi := h.App.Group("")
+	baseApi.GET("/docs/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	{
-
-		//Example Routes
-		campaignApi := api.Group("/campaign")
-		//campaignApi.Use(h.RequestMiddleware.RequestHeader)
+		userApi := baseApi.Group("/user")
 		{
-			campaignApi.POST("/", h.ExampleHandler.Create)
-			campaignApi.GET("/select", h.ExampleHandler.Find)
-			campaignApi.GET("/:id", h.ExampleHandler.FindOne)
-			campaignApi.PUT("/:id", h.ExampleHandler.Update)
-			campaignApi.DELETE("/:id", h.ExampleHandler.Delete)
+			userApi.POST("/register", h.UserHandler.Register)
+			userApi.POST("/login", h.UserHandler.Login)
+			userApi.GET("/try", h.Middleware.JWTAuthentication, h.UserHandler.TestToken)
 		}
 	}
 }

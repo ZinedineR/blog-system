@@ -64,7 +64,7 @@ func NewDatabase(driver string, cfg *Config) *Database {
 			// configGorm.DisableForeignKeyConstraintWhenMigrating = true
 		}
 		configGorm.NamingStrategy = schema.NamingStrategy{
-			TablePrefix: cfg.DbPrefix, // table name prefix, table for `User` would be `t_users`
+			TablePrefix: cfg.DbPrefix, // table name prefix, table for `Users` would be `t_users`
 		}
 		db, err = gorm.Open(dialect, configGorm)
 		if err != nil {

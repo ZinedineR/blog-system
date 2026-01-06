@@ -1,16 +1,17 @@
 package http
 
 import (
-	"boiler-plate-clean/internal/delivery/http/response"
-	"boiler-plate-clean/internal/model"
-	"boiler-plate-clean/pkg/exception"
+	"blog-system/internal/delivery/http/response"
+	"blog-system/internal/model"
+	"blog-system/pkg/exception"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 const (
@@ -106,7 +107,9 @@ func (h *Handler) ExceptionJSON(e *gin.Context, exc *exception.Exception) {
 		Error:           exc.GetError(),
 	})
 }
-
+func (h *Handler) InternalErrorJSON(e *gin.Context, msg any, err ...any) {
+	h.ErrorJSON(e, 500, msg, err)
+}
 func (h *Handler) ErrorJSON(e *gin.Context, status int, msg any, err ...any) {
 	var er any
 	if len(err) > 0 {

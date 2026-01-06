@@ -42,7 +42,7 @@ All configuration is in `config.json` file.
 
 ## API Spec
 
-All API Spec is in `api` folder.
+All API Spec is in `baseApi` folder.
 
 ## Database Migration
 

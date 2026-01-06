@@ -1,8 +1,7 @@
-module boiler-plate-clean
+module blog-system
 
-go 1.22
+go 1.25
 
-toolchain go1.22.5
 
 require (
 	github.com/fsnotify/fsnotify v1.7.0

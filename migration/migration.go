@@ -1,13 +1,12 @@
 package migration
 
 import (
-	"boiler-plate-clean/internal/entity"
-	"boiler-plate-clean/pkg/database"
+	"blog-system/internal/entity"
+	"blog-system/pkg/database"
 )
 
 func AutoMigration(CpmDB *database.Database) {
 	CpmDB.MigrateDB(
-
-		&entity.Example{})
+		&entity.Users{})
 	//&entity.SMSLog{}
 }

@@ -1,19 +1,19 @@
 package main
 
 import (
-	"boiler-plate-clean/config"
-	"boiler-plate-clean/internal/delivery/http"
-	"boiler-plate-clean/internal/delivery/http/route"
-	"boiler-plate-clean/internal/gateway/messaging"
-	"boiler-plate-clean/internal/repository"
-	services "boiler-plate-clean/internal/services"
-	"boiler-plate-clean/migration"
-	kafkaserver "boiler-plate-clean/pkg/broker/kafkaservice"
-	"boiler-plate-clean/pkg/database"
-	"boiler-plate-clean/pkg/httpclient"
-	"boiler-plate-clean/pkg/logger"
-	"boiler-plate-clean/pkg/server"
-	"boiler-plate-clean/pkg/xvalidator"
+	"blog-system/config"
+	"blog-system/internal/delivery/http"
+	api "blog-system/internal/delivery/http/middleware"
+	"blog-system/internal/delivery/http/route"
+	"blog-system/internal/repository"
+	services "blog-system/internal/services"
+	"blog-system/migration"
+	"blog-system/pkg/database"
+	"blog-system/pkg/httpclient"
+	"blog-system/pkg/logger"
+	"blog-system/pkg/server"
+	"blog-system/pkg/signature"
+	"blog-system/pkg/xvalidator"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -22,10 +22,8 @@ import (
 )
 
 var (
-	httpClient      httpclient.Client
-	sqlClientRepo   *database.Database
-	kafkaDialer     *kafkaserver.KafkaService
-	exampleProducer messaging.ExampleProducer
+	httpClient    httpclient.Client
+	sqlClientRepo *database.Database
 )
 
 // @title           Pigeon
@@ -62,28 +60,22 @@ func main() {
 		AllowMethods: conf.AppEnvConfig.AllowMethods,
 		AllowHeaders: conf.AppEnvConfig.AllowHeaders,
 	})
-
+	signaturerService := signature.NewSignature("secret", "")
 	// repository
-	exampleRepository := repository.NewExampleSQLRepository()
-
-	// external api
-	//gotifySvcExternalAPI := externalapi.NewExampleExternalImpl(conf, httpClient)
-
-	// producer
-
-	exampleProducer = messaging.NewExampleKafkaProducerImpl(kafkaDialer, conf.KafkaConfig.KafkaTopicEmail)
+	userRepository := repository.NewUserSQLRepository()
 
 	// service
-	exampleService := services.NewExampleService(sqlClientRepo.GetDB(), exampleRepository, validate)
+	userService := services.NewUserService(sqlClientRepo.GetDB(), userRepository, signaturerService, validate)
 	// Handler
-	exampleHandler := http.NewExampleHTTPHandler(exampleService)
+	userHandler := http.NewUserHTTPHandler(userService)
 
 	router := route.Router{
-		App:            ginServer.App,
-		ExampleHandler: exampleHandler,
+		App:         ginServer.App,
+		Middleware:  api.NewMiddleware(signaturerService),
+		UserHandler: userHandler,
 	}
 	router.Setup()
-	router.SwaggerRouter()
+	//router.SwaggerRouter()
 	echan := make(chan error)
 	go func() {
 		echan <- ginServer.Start()
@@ -102,9 +94,6 @@ func main() {
 
 func initInfrastructure(config *config.Config) {
 	//initPostgreSQL()
-
-	kafkaDialer = initKafka(config)
-
 	sqlClientRepo = initSQL(config)
 
 	httpClient = initHttpclient()
@@ -138,14 +127,4 @@ func initHttpclient() httpclient.Client {
 	httpClientFactory := httpclient.New()
 	httpClient := httpClientFactory.CreateClient()
 	return httpClient
-}
-
-func initKafka(config *config.Config) *kafkaserver.KafkaService {
-	kafkaDialer := kafkaserver.New(&kafkaserver.Config{
-		SecurityProtocol: config.KafkaConfig.KafkaSecurityProtocol,
-		Brokers:          config.KafkaConfig.KafkaBroker,
-		Username:         config.KafkaConfig.KafkaUsername,
-		Password:         config.KafkaConfig.KafkaPassword,
-	})
-	return kafkaDialer
 }

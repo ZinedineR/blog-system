@@ -1,16 +1,17 @@
 package repository
 
 import (
-	"boiler-plate-clean/internal/model"
-	"boiler-plate-clean/pkg/pagination"
+	"blog-system/internal/model"
+	"blog-system/pkg/pagination"
 	"context"
 	"errors"
+	"log/slog"
+
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
-	"log/slog"
 )
 
-type BaseRepository[T any] interface {
+type CommonQuery[T any] interface {
 	CreateTx(ctx context.Context, tx *gorm.DB, data *T) error
 	UpdateTx(ctx context.Context, tx *gorm.DB, data *T) error
 	UpdateTxWithAssociations(ctx context.Context, tx *gorm.DB, data *T) error
@@ -23,29 +24,16 @@ type BaseRepository[T any] interface {
 		filter model.FilterParams,
 	) (*model.PaginationData[T], error)
 	FindByID(ctx context.Context, tx *gorm.DB, id string) (*T, error)
-	FindByColumn(
+	FindByFilter(
 		ctx context.Context, tx *gorm.DB, filter model.FilterParams, order model.OrderParam,
 	) (*T, error)
+	FindByMap(ctx context.Context, tx *gorm.DB, data map[string]interface{}) (*T, error)
 }
 
-type RelationField struct {
-	Name string
-	Func func(*gorm.DB) *gorm.DB
+type Repository[T any] struct {
 }
 
-type BaseRepositoryImpl[T any] struct {
-	relationFields []RelationField
-}
-
-func NewBaseRepositoryImpl[T any](
-	relationFields []RelationField,
-) BaseRepository[T] {
-	return &BaseRepositoryImpl[T]{
-		relationFields: relationFields,
-	}
-}
-
-func (r *BaseRepositoryImpl[T]) CreateTx(ctx context.Context, tx *gorm.DB, data *T) error {
+func (r *Repository[T]) CreateTx(ctx context.Context, tx *gorm.DB, data *T) error {
 	if err := tx.WithContext(ctx).Omit(clause.Associations).
 		Clauses(clause.OnConflict{
 			Columns:   []clause.Column{{Name: "id"}},
@@ -58,20 +46,7 @@ func (r *BaseRepositoryImpl[T]) CreateTx(ctx context.Context, tx *gorm.DB, data 
 	return nil
 }
 
-func (r *BaseRepositoryImpl[T]) CreateTxAssociation(ctx context.Context, tx *gorm.DB, data *T) error {
-	if err := tx.WithContext(ctx).
-		Clauses(clause.OnConflict{
-			Columns:   []clause.Column{{Name: "id"}},
-			UpdateAll: true,
-		}).
-		Create(data).Error; err != nil {
-		slog.Error("failed to create", err)
-		return err
-	}
-	return nil
-}
-
-func (r *BaseRepositoryImpl[T]) UpdateTx(ctx context.Context, tx *gorm.DB, data *T) error {
+func (r *Repository[T]) UpdateTx(ctx context.Context, tx *gorm.DB, data *T) error {
 	if err := tx.WithContext(ctx).Omit(clause.Associations).Model(data).Select("*").Updates(data).Error; err != nil {
 		slog.Error("failed to update", err)
 		return err
@@ -79,23 +54,23 @@ func (r *BaseRepositoryImpl[T]) UpdateTx(ctx context.Context, tx *gorm.DB, data 
 	return nil
 }
 
-func (r *BaseRepositoryImpl[T]) UpdateTxWithAssociations(ctx context.Context, tx *gorm.DB, data *T) error {
-	if err := tx.WithContext(ctx).Session(&gorm.Session{FullSaveAssociations: true}).Model(data).Select("*").Updates(data).Error; err != nil {
-		slog.Error("failed to update", slog.Any("error", err))
+func (r *Repository[T]) UpdateTxWithAssociations(ctx context.Context, tx *gorm.DB, data *T) error {
+	if err := tx.WithContext(ctx).Model(data).Select("*").Updates(data).Error; err != nil {
+		slog.Error("failed to update", err)
 		return err
 	}
 	return nil
 }
 
-func (r *BaseRepositoryImpl[T]) DeleteByIDTx(ctx context.Context, tx *gorm.DB, id string) error {
-	if err := tx.WithContext(ctx).Unscoped().Where("id = ?", id).Delete(new(T)).Error; err != nil {
+func (r *Repository[T]) DeleteByIDTx(ctx context.Context, tx *gorm.DB, id string) error {
+	if err := tx.WithContext(ctx).Unscoped().Where("references_id = ?", id).Delete(new(T)).Error; err != nil {
 		slog.Error("failed to delete", err)
 		return err
 	}
 	return nil
 }
 
-func (r *BaseRepositoryImpl[T]) FindByPagination(
+func (r *Repository[T]) FindByPagination(
 	ctx context.Context, tx *gorm.DB, page model.PaginationParam, order model.OrderParam,
 	filter model.FilterParams,
 ) (*model.PaginationData[T], error) {
@@ -116,7 +91,7 @@ func (r *BaseRepositoryImpl[T]) FindByPagination(
 	}, nil
 }
 
-func (r *BaseRepositoryImpl[T]) Find(
+func (r *Repository[T]) Find(
 	ctx context.Context, tx *gorm.DB, order model.OrderParam, filter model.FilterParams,
 ) (*[]T, error) {
 	var data *[]T
@@ -133,17 +108,9 @@ func (r *BaseRepositoryImpl[T]) Find(
 	return data, nil
 }
 
-func (r *BaseRepositoryImpl[T]) FindByID(ctx context.Context, tx *gorm.DB, id string) (*T, error) {
+func (r *Repository[T]) FindByID(ctx context.Context, tx *gorm.DB, id string) (*T, error) {
 	var data T
-	if len(r.relationFields) > 0 {
-		tx = tx.WithContext(ctx)
-		for _, field := range r.relationFields {
-			tx = tx.Preload(field.Name, field.Func)
-		}
-	} else {
-		tx = tx.WithContext(ctx).Preload(clause.Associations)
-	}
-	if err := tx.Where("id = ?", id).First(&data).Error; err != nil {
+	if err := tx.WithContext(ctx).Preload(clause.Associations).Where("references_id = ?", id).First(&data).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
@@ -153,11 +120,11 @@ func (r *BaseRepositoryImpl[T]) FindByID(ctx context.Context, tx *gorm.DB, id st
 	return &data, nil
 }
 
-func (r *BaseRepositoryImpl[T]) FindByColumn(
+func (r *Repository[T]) FindByFilter(
 	ctx context.Context, tx *gorm.DB, filter model.FilterParams, order model.OrderParam,
 ) (*T, error) {
 	var data T
-	query := tx.WithContext(ctx).Omit(clause.Associations)
+	query := tx.WithContext(ctx).Preload(clause.Associations)
 	query = pagination.Where(filter, query)
 	query = pagination.Order(order, query)
 	if err := query.First(&data).Error; err != nil {
@@ -165,6 +132,19 @@ func (r *BaseRepositoryImpl[T]) FindByColumn(
 			return nil, nil
 		}
 		slog.Error("failed to find by column", err)
+		return nil, err
+	}
+	return &data, nil
+}
+
+func (r *Repository[T]) FindByMap(ctx context.Context, tx *gorm.DB, search map[string]interface{}) (*T, error) {
+	var data T
+
+	if err := tx.WithContext(ctx).Preload(clause.Associations).Where(search).First(&data).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		slog.Error("failed to find by references id", slog.Any("error", err))
 		return nil, err
 	}
 	return &data, nil

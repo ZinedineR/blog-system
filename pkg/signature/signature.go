@@ -1,7 +1,7 @@
 package signature
 
 import (
-	"boiler-plate-clean/pkg/exception"
+	"blog-system/pkg/exception"
 	"bytes"
 	"crypto"
 	"crypto/hmac"
@@ -9,10 +9,11 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/golang-jwt/jwt/v4"
-	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"time"
+
+	"github.com/golang-jwt/jwt/v4"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Signature struct {
@@ -23,7 +24,7 @@ type Signature struct {
 type Signaturer interface {
 	HashBscryptPassword(password string) (string, error)
 	CheckBscryptPasswordHash(password, hash string) bool
-	GenerateJWT(username string) (string, error)
+	GenerateJWT(id, username string) (string, error)
 	JWTCheck(token string) (*JwtAuthenticationRes, *exception.Exception)
 	SignHMAC512(httpMethod, bodyJson, token string) (string, error)
 	VerifyHMAC512(httpMethod, bodyJson, token, hash string) (bool, *exception.Exception)
@@ -55,21 +56,24 @@ func (s *Signature) CheckBscryptPasswordHash(password, hash string) bool {
 
 type JWTClaims struct {
 	jwt.RegisteredClaims
-	Username string `json:"Username"`
+	UserReferencesId string `json:"user_references_id"`
+	Username         string `json:"username"`
 }
 
 type JwtAuthenticationRes struct {
-	Username string `json:"username"`
-	Token    string `json:"token"`
+	UserReferencesId string `json:"user_references_id"`
+	Username         string `json:"username"`
+	Token            string `json:"token"`
 }
 
-func (s *Signature) GenerateJWT(username string) (string, error) {
+func (s *Signature) GenerateJWT(id, username string) (string, error) {
 	claims := JWTClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    "boiler-plate-clean",
+			Issuer:    "blog-system",
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),
 		},
-		Username: username,
+		Username:         username,
+		UserReferencesId: id,
 	}
 	token := jwt.NewWithClaims(
 		jwt.SigningMethodHS256,
@@ -83,9 +87,6 @@ func (s *Signature) GenerateJWT(username string) (string, error) {
 }
 
 func (s *Signature) JWTCheck(token string) (*JwtAuthenticationRes, *exception.Exception) {
-	fmt.Println("JWTAuthentication", token)
-	fmt.Println("secret", s.jwtSecretAccessToken)
-
 	jwtToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -97,16 +98,19 @@ func (s *Signature) JWTCheck(token string) (*JwtAuthenticationRes, *exception.Ex
 	}
 
 	var username string
+	var user_references_id string
 	claims, ok := jwtToken.Claims.(jwt.MapClaims)
 	if ok || jwtToken.Valid {
-		username = fmt.Sprintf("%v", claims["name"])
+		username = fmt.Sprintf("%v", claims["username"])
+		user_references_id = fmt.Sprintf("%v", claims["user_references_id"])
 	} else {
 		return nil, exception.Unauthenticated("Invalid token")
 	}
 
 	return &JwtAuthenticationRes{
-		Username: username,
-		Token:    token,
+		UserReferencesId: user_references_id,
+		Username:         username,
+		Token:            token,
 	}, nil
 }
 
