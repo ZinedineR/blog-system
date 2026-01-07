@@ -40,6 +40,25 @@ API for managing blog posts with CRUD operations, pagination, filtering, and aut
 - **Model Layer** (`internal/model`): Request/response DTOs, data transfer objects
 - **Entity Layer** (`internal/entity`): Domain models, business entities
 
+### Database Schema
+
+![ERD](erd.png)
+
+This database schema supports a simple blog system with three main tables:
+
+- **blog_users**: Stores user accounts with username and password for authentication. Each user has a unique UUID
+  reference identifier.
+
+- **blog_posts**: Contains blog content created by users. Posts include title, content, tags, publication status, and
+  timestamps. Each post is linked to its author via `user_references_id`. When a user is deleted, their posts are
+  automatically removed (CASCADE).
+
+- **blog_comments**: Manages comments on blog posts. Comments reference both the post and optionally the commenting
+  user. If a post is deleted, its comments are removed automatically. If a user is deleted, their comments remain but
+  the user reference is set to NULL.
+
+The schema uses UUID-based references for flexible external system integration while maintaining auto-incrementing IDs
+for internal operations. Foreign key constraints ensure data integrity with appropriate cascade and nullification rules.
 ## Tech Stack
 
 - **Golang** : https://github.com/golang/go
