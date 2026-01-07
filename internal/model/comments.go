@@ -9,9 +9,9 @@ import (
 )
 
 type BaseCommentsReq struct {
-	PostReferencesId string  `json:"post_references_id" validate:"required"`
-	UserReferencesId *string `json:"user_references_id"`
-	Content          string  `json:"content" validate:"required"`
+	PostReferencesId string  `json:"post_references_id" validate:"required" example:"550e8400-e29b-41d4-a716-446655440000"`
+	UserReferencesId *string `json:"user_references_id" example:"123e4567-e89b-12d3-a456-426614174000"`
+	Content          string  `json:"content" validate:"required" example:"This is a great post! Thanks for sharing."`
 }
 
 type CreateCommentReq struct {

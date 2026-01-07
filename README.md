@@ -1,81 +1,117 @@
-# Golang Clean Architecture Template
+# Blog System - Golang Clean Architecture
 
 ## Description
 
-This is golang clean architecture template.
+A simple blog system built with Golang following Clean Architecture principles. This application demonstrates a RESTful
+API for managing blog posts with CRUD operations, pagination, filtering, and authentication.
+
+## Features
+
+- **Blog Post Management**: Create, read, update, and delete blog posts
+- **Pagination & Filtering**: Efficient data retrieval with customizable filters
+- **Authentication**: Secure endpoints with Bearer token authentication
+- **Clean Architecture**: Separation of concerns with clear layer boundaries
+- **API Documentation**: Interactive Swagger/OpenAPI documentation
+- **Database Migrations**: Version-controlled database schema changes
 
 ## Architecture
 
 ![Clean Architecture](architecture.png)
 
-1. External system perform request (HTTP, gRPC, Messaging, etc)
-2. The Delivery creates various Model from request data
-3. The Delivery calls Use Case, and execute it using Model data
-4. The Use Case create Entity data for the business logic
-5. The Use Case calls Repository, and execute it using Entity data
-6. The Repository use Entity data to perform database operation
-7. The Repository perform database operation to the database
-8. The Use Case create various Model for Gateway or from Entity data
-9. The Use Case calls Gateway, and execute it using Model data
-10. The Gateway using Model data to construct request to external system 
-11. The Gateway perform request to external system (HTTP, gRPC, Messaging, etc)
+### Architecture Flow
+
+1. External system performs request (HTTP, gRPC, Messaging, etc)
+2. The Delivery layer creates various Model from request data
+3. The Delivery calls Use Case, and executes it using Model data
+4. The Use Case creates Entity data for the business logic
+5. The Use Case calls Repository, and executes it using Entity data
+6. The Repository uses Entity data to perform database operation
+7. The Repository performs database operation to the database
+8. The Use Case creates various Model for Gateway or from Entity data
+9. The Use Case calls Gateway, and executes it using Model data
+10. The Gateway uses Model data to construct request to external system
+11. The Gateway performs request to external system (HTTP, gRPC, Messaging, etc)
+
+### Layer Responsibilities
+
+- **Delivery Layer** (`internal/delivery/http`): HTTP handlers, request/response handling, routing
+- **Service Layer** (`internal/services`): Business logic, use case implementation
+- **Repository Layer** (`internal/repository`): Data access, database operations
+- **Model Layer** (`internal/model`): Request/response DTOs, data transfer objects
+- **Entity Layer** (`internal/entity`): Domain models, business entities
 
 ## Tech Stack
 
-- Golang : https://github.com/golang/go
-- MySQL (Database) : https://github.com/mysql/mysql-server
-- Apache Kafka : https://github.com/apache/kafka
+- **Golang** : https://github.com/golang/go
+- **PostgreSQL** (Database) : https://github.com/postgres/postgres
 
 ## Framework & Library
 
-- GoFiber (HTTP Framework) : https://github.com/gofiber/fiber
-- GORM (ORM) : https://github.com/go-gorm/gorm
-- Viper (Configuration) : https://github.com/spf13/viper
-- Golang Migrate (Database Migration) : https://github.com/golang-migrate/migrate
-- Go Playground Validator (Validation) : https://github.com/go-playground/validator
-- Logrus (Logger) : https://github.com/sirupsen/logrus
-- Confluent Kafka Golang : https://github.com/confluentinc/confluent-kafka-go
+- **Gin** (HTTP Framework) : https://github.com/gin-gonic/gin - High-performance HTTP router and middleware framework
+  for building RESTful APIs with excellent routing capabilities, used for handling all HTTP endpoints in this blog
+  system
+- **GORM** (ORM) : https://github.com/go-gorm/gorm - Type-safe ORM providing database abstraction layer for PostgreSQL,
+  enabling clean repository pattern implementation with automatic migrations and query building for blog posts,
+  comments, and user management
+- **Viper** (Configuration) : https://github.com/spf13/viper - Flexible configuration management supporting multiple
+  formats (JSON, YAML, ENV), allowing environment-specific settings for database connections, server ports, and
+  application behavior across development and production environments
+- **Go Playground Validator** (Validation) : https://github.com/go-playground/validator - Struct-based validation
+  library for enforcing business rules and data integrity on incoming HTTP requests, ensuring valid blog post content,
+  user registration data, and comment submissions before processing
+- **Slog** (Structured Logger) : Standard library structured logging for consistent, level-based logging throughout the
+  application with JSON output support, providing observability for API requests, database operations, and error
+  tracking
+- **Swag** (Swagger Documentation) : https://github.com/swaggo/swag - Automatic OpenAPI/Swagger documentation generation
+  from Go annotations, providing interactive API documentation accessible at `/docs` for easy API exploration and
+  testing
 
-## Configuration
+## Setup and Running Instructions
 
-All configuration is in `config.json` file.
+### Prerequisites
 
-## API Spec
+- Go 1.25 or higher
+- Postgres 14 or higher
 
-All API Spec is in `baseApi` folder.
+### Installation
 
-## Database Migration
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd blog-system
+   ```
 
-All database migration is in `db/migrations` folder.
+2. **Install dependencies (optional)**
+   ```bash
+   go mod download
+   ```
 
-### Create Migration
+3. **Configure the application**
 
-```shell
-migrate create -ext sql -dir db/migrations create_table_xxx
-```
+   Copy the example environment file and fill in your configuration:
+   ```bash
+   cp .env.example .env
+   ```
 
-### Run Migration
+   Update `.env` with your database and application settings.
 
-```shell
-migrate -database "mysql://root:@tcp(localhost:3306)/golang_clean_architecture?charset=utf8mb4&parseTime=True&loc=Local" -path db/migrations up
-```
+4. **Run the application**
 
-## Run Application
+   You can run the application in two ways:
 
-### Run unit test
+   **Via Docker:**
+   ```bash
+   docker compose up -d
+   ```
 
-```bash
-go test -v ./test/
-```
+   **Local Development:**
+   ```bash
+   go run cmd/web/main.go
+   ```
 
-### Run web server
+   > **Note:** Database migrations will run automatically when the program starts.
 
-```bash
-go run cmd/web/main.go
-```
-
-### Run worker
-
-```bash
-go run cmd/worker/main.go
-```
+5. **Generate Swagger documentation** (Optional)
+   ```bash
+   swag init -g cmd/web/main.go
+   ```

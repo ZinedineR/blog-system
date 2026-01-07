@@ -10,10 +10,10 @@ import (
 )
 
 type BasePostsReq struct {
-	Title           string     `json:"title" validate:"required"`
-	Content         string     `json:"content" validate:"required"`
-	Tags            string     `json:"tags"`
-	Published       bool       `json:"published"`
+	Title           string     `json:"title" validate:"required" example:"My First Blog Post"`
+	Content         string     `json:"content" validate:"required" example:"This is the content of my blog post"`
+	Tags            string     `json:"tags" example:"golang,programming,tutorial"`
+	Published       bool       `json:"published" example:"true"`
 	LastPublishedAt *time.Time `json:"-"`
 }
 

@@ -795,13 +795,16 @@ const docTemplate = `{
             ],
             "properties": {
                 "content": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "This is a great post! Thanks for sharing."
                 },
                 "post_references_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
                 },
                 "user_references_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
                 }
             }
         },
@@ -844,16 +847,20 @@ const docTemplate = `{
             ],
             "properties": {
                 "content": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "This is the content of my blog post"
                 },
                 "published": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": true
                 },
                 "tags": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "golang,programming,tutorial"
                 },
                 "title": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "My First Blog Post"
                 }
             }
         },
@@ -1028,16 +1035,19 @@ const docTemplate = `{
             ],
             "properties": {
                 "content": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "This is a great post! Thanks for sharing."
                 },
                 "post_references_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
                 },
                 "referencesId": {
                     "type": "string"
                 },
                 "user_references_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
                 }
             }
         },
@@ -1080,19 +1090,23 @@ const docTemplate = `{
             ],
             "properties": {
                 "content": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "This is the content of my blog post"
                 },
                 "published": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": true
                 },
                 "referencesId": {
                     "type": "string"
                 },
                 "tags": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "golang,programming,tutorial"
                 },
                 "title": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "My First Blog Post"
                 }
             }
         },

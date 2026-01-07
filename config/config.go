@@ -39,7 +39,7 @@ func InitAppConfig(validate *xvalidator.Validator) *Config {
 	viper.AutomaticEnv()
 	if err := viper.ReadInConfig(); err != nil {
 		slog.Error(fmt.Sprintf("Failed to read config file: %s", err))
-		os.Exit(1)
+		slog.Info(fmt.Sprintf("Reading from default environment...: %s", err))
 	}
 
 	viper.OnConfigChange(func(e fsnotify.Event) {

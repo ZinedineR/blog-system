@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  blog-system:
+    build:
+      context: .
+    command: ["./blog-system"]
+    container_name: blog-system
+    hostname: blog-system
+    networks:
+      - blog-conn
+    ports:
+      - "5003:5003"
+    environment:
+      - APP_NAME=${APP_NAME:-blog-system}
+      - APP_ENV=${APP_ENV:-development}
+      - GIN_MODE=${GIN_MODE:-release}
+      - APP_DEBUG=${APP_DEBUG:-false}
+      - APP_VERSION=${APP_VERSION:-v1}
+      - JWT_SECRET=${JWT_SECRET:?jwt secret not set}
+      - HTTP_PORT=${HTTP_PORT:-5003}
+      - DB_CONNECTION=${DB_CONNECTION:-postgres}
+      - DB_DATABASE=${DB_DATABASE:-blog}
+      - DB_HOST=${DB_HOST:-postgres-blog}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_USERNAME=${DB_USERNAME:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - DB_PREFIX=${DB_PREFIX:-blog_}
+      - ALLOW_ORIGINS=${ALLOW_ORIGINS:-*}
+      - ALLOW_METHODS=${ALLOW_METHODS:-POST,GET,PUT,DELETE,OPTIONS}
+      - ALLOW_HEADERS=${ALLOW_HEADERS:-*}
+      - LOG_PATH=${LOG_PATH:-./tmp/}
+    deploy:
+      restart_policy:
+        condition: on-failure
+  postgres-blog:
+    image: postgres:14.12
+    container_name: postgres-blog
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: blog
+    ports:
+      - "5432:5432"
+    networks:
+      - blog-conn
+    volumes:
+      - ./postgres_master:/var/lib/postgresql/data
+networks:
+  blog-conn:
+    driver: bridge
+

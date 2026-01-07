@@ -51,10 +51,13 @@ definitions:
   blog-system_internal_model.CreateCommentReq:
     properties:
       content:
+        example: This is a great post! Thanks for sharing.
         type: string
       post_references_id:
+        example: 550e8400-e29b-41d4-a716-446655440000
         type: string
       user_references_id:
+        example: 123e4567-e89b-12d3-a456-426614174000
         type: string
     required:
     - content
@@ -82,12 +85,16 @@ definitions:
   blog-system_internal_model.CreatePostReq:
     properties:
       content:
+        example: This is the content of my blog post
         type: string
       published:
+        example: true
         type: boolean
       tags:
+        example: golang,programming,tutorial
         type: string
       title:
+        example: My First Blog Post
         type: string
     required:
     - content
@@ -204,12 +211,15 @@ definitions:
   blog-system_internal_model.UpdateCommentReq:
     properties:
       content:
+        example: This is a great post! Thanks for sharing.
         type: string
       post_references_id:
+        example: 550e8400-e29b-41d4-a716-446655440000
         type: string
       referencesId:
         type: string
       user_references_id:
+        example: 123e4567-e89b-12d3-a456-426614174000
         type: string
     required:
     - content
@@ -237,14 +247,18 @@ definitions:
   blog-system_internal_model.UpdatePostReq:
     properties:
       content:
+        example: This is the content of my blog post
         type: string
       published:
+        example: true
         type: boolean
       referencesId:
         type: string
       tags:
+        example: golang,programming,tutorial
         type: string
       title:
+        example: My First Blog Post
         type: string
     required:
     - content
