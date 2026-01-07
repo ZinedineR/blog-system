@@ -1,6 +1,7 @@
 package route
 
 import (
+	_ "blog-system/docs"
 	"blog-system/internal/delivery/http"
 	api "blog-system/internal/delivery/http/middleware"
 
@@ -26,18 +27,18 @@ func (h *Router) Setup() {
 		{
 			userApi.POST("/register", h.UserHandler.Register)
 			userApi.POST("/login", h.UserHandler.Login)
-			userApi.GET("/try", h.Middleware.JWTAuthentication, h.UserHandler.TestToken)
 		}
 	}
 	{
 		postApi := baseApi.Group("/posts")
-		postApi.Use(h.Middleware.JWTAuthentication)
+		postApiPrivate := postApi.Group("")
+		postApiPrivate.Use(h.Middleware.JWTAuthentication)
 		{
-			postApi.POST("", h.PostHandler.Create)
+			postApiPrivate.POST("", h.PostHandler.Create)
 			postApi.GET("", h.PostHandler.Find)
 			postApi.GET("/:id", h.PostHandler.Detail)
-			postApi.PATCH("/:id", h.PostHandler.Update)
-			postApi.DELETE("/:id", h.PostHandler.Delete)
+			postApiPrivate.PATCH("/:id", h.PostHandler.Update)
+			postApiPrivate.DELETE("/:id", h.PostHandler.Delete)
 		}
 	}
 	{

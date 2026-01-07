@@ -19,6 +19,17 @@ func NewUserHTTPHandler(example service.UserService) *UserHTTPHandler {
 	}
 }
 
+// Register godoc
+//
+//	@Summary		Register a new user
+//	@Description	Registers a new user in the system
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			user	body		model.CreateUserReq	true	"Register User Request"
+//	@Success		200		{object}	response.DataResponse{data=model.CreateUserRes}	"success"
+//	@Failure		400		{object}	response.ErrorResponse									"error"
+//	@Router			/users/register [post]
 func (h UserHTTPHandler) Register(ctx *gin.Context) {
 	request := model.CreateUserReq{}
 	if err := ctx.ShouldBindJSON(&request); err != nil {
@@ -35,6 +46,17 @@ func (h UserHTTPHandler) Register(ctx *gin.Context) {
 	h.DataJSON(ctx, res)
 }
 
+// Login godoc
+//
+//	@Summary		User login
+//	@Description	Authenticates a user and returns a token
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			user	body		model.CreateUserReq	true	"Login User Request"
+//	@Success		200		{object}	response.DataResponse{data=model.CreateUserRes}	"success"
+//	@Failure		400		{object}	response.ErrorResponse									"error"
+//	@Router			/users/login [post]
 func (h UserHTTPHandler) Login(ctx *gin.Context) {
 	request := model.CreateUserReq{}
 	if err := ctx.ShouldBindJSON(&request); err != nil {
@@ -48,15 +70,5 @@ func (h UserHTTPHandler) Login(ctx *gin.Context) {
 		return
 	}
 
-	h.DataJSON(ctx, res)
-}
-
-func (h UserHTTPHandler) TestToken(ctx *gin.Context) {
-	request := model.GetUserByIDReq{}
-	res, errException := h.UserService.Detail(ctx, &request)
-	if errException != nil {
-		h.ExceptionJSON(ctx, errException)
-		return
-	}
 	h.DataJSON(ctx, res)
 }

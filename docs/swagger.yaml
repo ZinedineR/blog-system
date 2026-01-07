@@ -1,0 +1,717 @@
+definitions:
+  blog-system_internal_delivery_http_response.DataResponse:
+    properties:
+      data: {}
+      responseCode:
+        type: integer
+      responseMessage: {}
+    type: object
+  blog-system_internal_delivery_http_response.ErrorResponse:
+    properties:
+      error: {}
+      responseCode:
+        type: integer
+      responseMessage: {}
+    type: object
+  blog-system_internal_delivery_http_response.PaginationResponse:
+    properties:
+      data: {}
+      pagination: {}
+      responseCode:
+        type: integer
+      responseMessage: {}
+    type: object
+  blog-system_internal_entity.Comments:
+    properties:
+      author:
+        allOf:
+        - $ref: '#/definitions/blog-system_internal_entity.Users'
+        description: relationship
+      content:
+        type: string
+      created_at:
+        type: string
+      post_references_id:
+        type: string
+      references_id:
+        type: string
+      updated_at:
+        type: string
+      user_references_id:
+        type: string
+    type: object
+  blog-system_internal_entity.Users:
+    properties:
+      references_id:
+        type: string
+      username:
+        example: john_doe
+        type: string
+    type: object
+  blog-system_internal_model.CreateCommentReq:
+    properties:
+      content:
+        type: string
+      post_references_id:
+        type: string
+      user_references_id:
+        type: string
+    required:
+    - content
+    - post_references_id
+    type: object
+  blog-system_internal_model.CreateCommentRes:
+    properties:
+      author:
+        allOf:
+        - $ref: '#/definitions/blog-system_internal_entity.Users'
+        description: relationship
+      content:
+        type: string
+      created_at:
+        type: string
+      post_references_id:
+        type: string
+      references_id:
+        type: string
+      updated_at:
+        type: string
+      user_references_id:
+        type: string
+    type: object
+  blog-system_internal_model.CreatePostReq:
+    properties:
+      content:
+        type: string
+      published:
+        type: boolean
+      tags:
+        type: string
+      title:
+        type: string
+    required:
+    - content
+    - title
+    type: object
+  blog-system_internal_model.CreatePostRes:
+    properties:
+      author:
+        $ref: '#/definitions/blog-system_internal_entity.Users'
+      comments:
+        description: relationship
+        items:
+          $ref: '#/definitions/blog-system_internal_entity.Comments'
+        type: array
+      content:
+        type: string
+      created_at:
+        type: string
+      last_published_at:
+        type: string
+      published:
+        type: boolean
+      references_id:
+        type: string
+      tags:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_references_id:
+        type: string
+    type: object
+  blog-system_internal_model.CreateUserReq:
+    properties:
+      password:
+        example: SecurePass123!
+        minLength: 8
+        type: string
+      username:
+        example: john_doe
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  blog-system_internal_model.CreateUserRes:
+    properties:
+      references_id:
+        type: string
+      username:
+        example: john_doe
+        type: string
+    type: object
+  blog-system_internal_model.DeleteCommentRes:
+    properties:
+      referencesId:
+        description: uuid, will be get from query handler
+        type: string
+    type: object
+  blog-system_internal_model.DeletePostRes:
+    properties:
+      referencesId:
+        description: uuid, will be get from query handler
+        type: string
+    type: object
+  blog-system_internal_model.GetCommentByIDRes:
+    properties:
+      author:
+        allOf:
+        - $ref: '#/definitions/blog-system_internal_entity.Users'
+        description: relationship
+      content:
+        type: string
+      created_at:
+        type: string
+      post_references_id:
+        type: string
+      references_id:
+        type: string
+      updated_at:
+        type: string
+      user_references_id:
+        type: string
+    type: object
+  blog-system_internal_model.GetPostByIDRes:
+    properties:
+      author:
+        $ref: '#/definitions/blog-system_internal_entity.Users'
+      comments:
+        description: relationship
+        items:
+          $ref: '#/definitions/blog-system_internal_entity.Comments'
+        type: array
+      content:
+        type: string
+      created_at:
+        type: string
+      last_published_at:
+        type: string
+      published:
+        type: boolean
+      references_id:
+        type: string
+      tags:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_references_id:
+        type: string
+    type: object
+  blog-system_internal_model.UpdateCommentReq:
+    properties:
+      content:
+        type: string
+      post_references_id:
+        type: string
+      referencesId:
+        type: string
+      user_references_id:
+        type: string
+    required:
+    - content
+    - post_references_id
+    type: object
+  blog-system_internal_model.UpdateCommentRes:
+    properties:
+      author:
+        allOf:
+        - $ref: '#/definitions/blog-system_internal_entity.Users'
+        description: relationship
+      content:
+        type: string
+      created_at:
+        type: string
+      post_references_id:
+        type: string
+      references_id:
+        type: string
+      updated_at:
+        type: string
+      user_references_id:
+        type: string
+    type: object
+  blog-system_internal_model.UpdatePostReq:
+    properties:
+      content:
+        type: string
+      published:
+        type: boolean
+      referencesId:
+        type: string
+      tags:
+        type: string
+      title:
+        type: string
+    required:
+    - content
+    - title
+    type: object
+  blog-system_internal_model.UpdatePostRes:
+    properties:
+      author:
+        $ref: '#/definitions/blog-system_internal_entity.Users'
+      comments:
+        description: relationship
+        items:
+          $ref: '#/definitions/blog-system_internal_entity.Comments'
+        type: array
+      content:
+        type: string
+      created_at:
+        type: string
+      last_published_at:
+        type: string
+      published:
+        type: boolean
+      references_id:
+        type: string
+      tags:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_references_id:
+        type: string
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample blog system.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Blog-system API
+  version: "1.0"
+paths:
+  /comments:
+    get:
+      consumes:
+      - application/json
+      description: Finds comments in the system with a paginated list with optional
+        filters and sorting
+      parameters:
+      - description: Offset for pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit for pagination
+        in: query
+        name: limit
+        type: integer
+      - description: 'Filter rules<br><br>### Format:<br>{field}:{value}:{operator}<br>Supported
+          operators: eq, lt, gt, lte, gte, in, like, is, not'
+        in: query
+        name: filter
+        type: string
+      - description: 'Sort rules<br><br>### Format:<br>{field}:{direction}<br>Supported
+          directions: asc, desc'
+        in: query
+        name: order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            allOf:
+            - $ref: '#/definitions/blog-system_internal_delivery_http_response.PaginationResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/blog-system_internal_model.GetCommentByIDRes'
+                  type: array
+              type: object
+        "400":
+          description: error
+          schema:
+            $ref: '#/definitions/blog-system_internal_delivery_http_response.ErrorResponse'
+      summary: Find comments
+      tags:
+      - Comment
+    post:
+      consumes:
+      - application/json
+      description: Creates a new comment in the system
+      parameters:
+      - description: Create Comment Request
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/blog-system_internal_model.CreateCommentReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            allOf:
+            - $ref: '#/definitions/blog-system_internal_delivery_http_response.DataResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/blog-system_internal_model.CreateCommentRes'
+              type: object
+        "400":
+          description: error
+          schema:
+            $ref: '#/definitions/blog-system_internal_delivery_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new comment
+      tags:
+      - Comment
+  /comments/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a comment in the system
+      parameters:
+      - description: Comment ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            allOf:
+            - $ref: '#/definitions/blog-system_internal_delivery_http_response.DataResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/blog-system_internal_model.DeleteCommentRes'
+              type: object
+        "400":
+          description: error
+          schema:
+            $ref: '#/definitions/blog-system_internal_delivery_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a comment
+      tags:
+      - Comment
+    get:
+      consumes:
+      - application/json
+      description: Gets a comment in the system
+      parameters:
+      - description: Comment ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            allOf:
+            - $ref: '#/definitions/blog-system_internal_delivery_http_response.DataResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/blog-system_internal_model.GetCommentByIDRes'
+              type: object
+        "400":
+          description: error
+          schema:
+            $ref: '#/definitions/blog-system_internal_delivery_http_response.ErrorResponse'
+      summary: Get a comment
+      tags:
+      - Comment
+    patch:
+      consumes:
+      - application/json
+      description: Updates a comment in the system
+      parameters:
+      - description: Comment ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Comment Request
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/blog-system_internal_model.UpdateCommentReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            allOf:
+            - $ref: '#/definitions/blog-system_internal_delivery_http_response.DataResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/blog-system_internal_model.UpdateCommentRes'
+              type: object
+        "400":
+          description: error
+          schema:
+            $ref: '#/definitions/blog-system_internal_delivery_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a comment
+      tags:
+      - Comment
+  /posts:
+    get:
+      consumes:
+      - application/json
+      description: Finds posts in the system with a paginated list of vendors with
+        optional filters and sorting
+      parameters:
+      - description: Offset for pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit for pagination
+        in: query
+        name: limit
+        type: integer
+      - description: 'Filter rules<br><br>### Format:<br>{field}:{value}:{operator}<br>Supported
+          operators: eq, lt, gt, lte, gte, in, like, is, not'
+        in: query
+        name: filter
+        type: string
+      - description: 'Sort rules<br><br>### Format:<br>{field}:{direction}<br>Supported
+          directions: asc, desc'
+        in: query
+        name: order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            allOf:
+            - $ref: '#/definitions/blog-system_internal_delivery_http_response.PaginationResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/blog-system_internal_model.GetPostByIDRes'
+                  type: array
+              type: object
+        "400":
+          description: "error\"\t\t\t\t\t\t\t\t\t\"error"
+          schema:
+            $ref: '#/definitions/blog-system_internal_delivery_http_response.ErrorResponse'
+      summary: Find posts
+      tags:
+      - Post
+    post:
+      consumes:
+      - application/json
+      description: Creates a new post in the system
+      parameters:
+      - description: Create Post Request
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/blog-system_internal_model.CreatePostReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            allOf:
+            - $ref: '#/definitions/blog-system_internal_delivery_http_response.DataResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/blog-system_internal_model.CreatePostRes'
+              type: object
+        "400":
+          description: error
+          schema:
+            $ref: '#/definitions/blog-system_internal_delivery_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      - BearerAuth: []
+      summary: Create a new post
+      tags:
+      - Post
+  /posts/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a post in the system
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            allOf:
+            - $ref: '#/definitions/blog-system_internal_delivery_http_response.DataResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/blog-system_internal_model.DeletePostRes'
+              type: object
+        "400":
+          description: error
+          schema:
+            $ref: '#/definitions/blog-system_internal_delivery_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a post
+      tags:
+      - Post
+    get:
+      consumes:
+      - application/json
+      description: Gets a post in the system
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            allOf:
+            - $ref: '#/definitions/blog-system_internal_delivery_http_response.DataResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/blog-system_internal_model.GetPostByIDRes'
+              type: object
+        "400":
+          description: error
+          schema:
+            $ref: '#/definitions/blog-system_internal_delivery_http_response.ErrorResponse'
+      summary: Get a post
+      tags:
+      - Post
+    patch:
+      consumes:
+      - application/json
+      description: Updates a post in the system
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Post Request
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/blog-system_internal_model.UpdatePostReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            allOf:
+            - $ref: '#/definitions/blog-system_internal_delivery_http_response.DataResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/blog-system_internal_model.UpdatePostRes'
+              type: object
+        "400":
+          description: error
+          schema:
+            $ref: '#/definitions/blog-system_internal_delivery_http_response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a post
+      tags:
+      - Post
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates a user and returns a token
+      parameters:
+      - description: Login User Request
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/blog-system_internal_model.CreateUserReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            allOf:
+            - $ref: '#/definitions/blog-system_internal_delivery_http_response.DataResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/blog-system_internal_model.CreateUserRes'
+              type: object
+        "400":
+          description: error
+          schema:
+            $ref: '#/definitions/blog-system_internal_delivery_http_response.ErrorResponse'
+      summary: User login
+      tags:
+      - Auth
+  /users/register:
+    post:
+      consumes:
+      - application/json
+      description: Registers a new user in the system
+      parameters:
+      - description: Register User Request
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/blog-system_internal_model.CreateUserReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            allOf:
+            - $ref: '#/definitions/blog-system_internal_delivery_http_response.DataResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/blog-system_internal_model.CreateUserRes'
+              type: object
+        "400":
+          description: error
+          schema:
+            $ref: '#/definitions/blog-system_internal_delivery_http_response.ErrorResponse'
+      summary: Register a new user
+      tags:
+      - Auth
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

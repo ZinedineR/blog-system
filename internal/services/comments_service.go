@@ -121,13 +121,13 @@ func (s *CommentServiceImpl) Delete(ctx context.Context, req *model.DeleteCommen
 	if postCheck == nil {
 		return nil, exception.PermissionDenied("post does not exist")
 	}
+	isPostAuthor := postCheck.UserReferencesId == userReferences
+	isCommentAuthor := false
 	if commentCheck.UserReferencesId != nil {
-		isPostAuthor := postCheck.UserReferencesId == userReferences
-		isCommentAuthor := *commentCheck.UserReferencesId == userReferences
-
-		if !isPostAuthor && !isCommentAuthor {
-			return nil, exception.PermissionDenied("you do not have permission to delete this comment")
-		}
+		isCommentAuthor = *commentCheck.UserReferencesId == userReferences
+	}
+	if !isPostAuthor && !isCommentAuthor {
+		return nil, exception.PermissionDenied("you do not have permission to delete this comment")
 	}
 	if err := s.commentRepo.DeleteByIDTx(ctx, tx, req.ReferencesId); err != nil {
 		return nil, exception.Internal("err", err)
