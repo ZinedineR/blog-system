@@ -60,19 +60,27 @@ func main() {
 		AllowMethods: conf.AppEnvConfig.AllowMethods,
 		AllowHeaders: conf.AppEnvConfig.AllowHeaders,
 	})
-	signaturerService := signature.NewSignature("secret", "")
+	signaturerService := signature.NewSignature(conf.AppEnvConfig.JWTSecret, "")
 	// repository
 	userRepository := repository.NewUserSQLRepository()
+	postRepository := repository.NewPostSQLRepository()
+	commentRepository := repository.NewCommentSQLRepository()
 
 	// service
 	userService := services.NewUserService(sqlClientRepo.GetDB(), userRepository, signaturerService, validate)
+	postService := services.NewPostService(sqlClientRepo.GetDB(), postRepository, userRepository, signaturerService, validate)
+	commentService := services.NewCommentService(sqlClientRepo.GetDB(), commentRepository, postRepository, signaturerService, validate)
 	// Handler
 	userHandler := http.NewUserHTTPHandler(userService)
+	postHandler := http.NewPostHTTPHandler(postService)
+	commentHandler := http.NewCommentHTTPHandler(commentService)
 
 	router := route.Router{
-		App:         ginServer.App,
-		Middleware:  api.NewMiddleware(signaturerService),
-		UserHandler: userHandler,
+		App:            ginServer.App,
+		Middleware:     api.NewMiddleware(signaturerService),
+		UserHandler:    userHandler,
+		PostHandler:    postHandler,
+		CommentHandler: commentHandler,
 	}
 	router.Setup()
 	//router.SwaggerRouter()
@@ -93,9 +101,7 @@ func main() {
 }
 
 func initInfrastructure(config *config.Config) {
-	//initPostgreSQL()
 	sqlClientRepo = initSQL(config)
-
 	httpClient = initHttpclient()
 }
 
@@ -108,15 +114,6 @@ func initSQL(conf *config.Config) *database.Database {
 		DbPort:   strconv.Itoa(conf.DatabaseConfig.Dbport),
 		DbPrefix: conf.DatabaseConfig.DbPrefix,
 	})
-	if conf.UseReplica() {
-		db.CqrsDB(conf.DatabaseConfig.Dbservice, &database.Config{
-			DbHost: conf.DatabaseReplicaConfig.Dbreplicahost,
-			DbUser: conf.DatabaseReplicaConfig.Dbreplicauser,
-			DbPass: conf.DatabaseReplicaConfig.Dbreplicapassword,
-			DbName: conf.DatabaseReplicaConfig.Dbreplicaname,
-			DbPort: strconv.Itoa(conf.DatabaseReplicaConfig.Dbreplicaport),
-		})
-	}
 	if conf.IsStaging() {
 		migration.AutoMigration(db)
 	}

@@ -11,7 +11,7 @@ type Posts struct {
 	Tags             string     `json:"tags" gorm:"type:varchar(255)"`
 	Published        bool       `json:"published"`
 	LastPublishedAt  *time.Time `json:"last_published_at"`
-	CreatedAt        time.Time  `gorm:"autoCreateTime" json:"created_at"`
+	CreatedAt        time.Time  `gorm:"autoCreateTime;<-:create" json:"created_at"`
 	UpdatedAt        *time.Time `gorm:"autoUpdateTime" json:"updated_at"`
 	//relationship
 	Comments []*Comments `json:"comments,omitempty" gorm:"foreignKey:PostReferencesId;references:ReferencesId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

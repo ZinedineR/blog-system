@@ -33,10 +33,6 @@ func (c Config) IsDebug() bool {
 	return c.AppEnvConfig.AppDebug
 }
 
-func (c Config) UseReplica() bool {
-	return c.AppEnvConfig.UseReplica
-}
-
 func InitAppConfig(validate *xvalidator.Validator) *Config {
 	viper.SetConfigFile(".env")
 	viper.SetConfigType("env")

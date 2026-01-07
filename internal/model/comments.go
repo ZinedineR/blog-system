@@ -25,6 +25,7 @@ func (req BaseCommentsReq) ToEntity(ctx context.Context) *entity.Comments {
 	}
 	return &entity.Comments{
 		ReferencesId:     uuid.NewString(),
+		PostReferencesId: req.PostReferencesId,
 		UserReferencesId: req.UserReferencesId,
 		Content:          req.Content,
 	}
@@ -43,7 +44,6 @@ type UpdateCommentRes struct {
 }
 
 type DeleteCommentReq struct {
-	BaseCommentsReq
 	ReferencesId string //uuid, will be get from query handler
 }
 type DeleteCommentRes struct {

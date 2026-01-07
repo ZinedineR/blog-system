@@ -47,4 +47,21 @@ func (m *Middleware) JWTAuthentication(c *gin.Context) {
 	c.Next()
 }
 
+func (m *Middleware) OptionalJWTAuthentication(c *gin.Context) {
+	authHeader := c.GetHeader("Authorization")
+	authFields := strings.Fields(authHeader)
+	if len(authFields) != 2 || strings.ToLower(authFields[0]) != "bearer" {
+		c.Next()
+		return
+	}
+	token := authFields[1]
+	jwtCheck, err := m.signaturer.JWTCheck(token)
+	if err != nil {
+		c.Next()
+		return
+	}
+	constant.SetUserReferencesId(c, &jwtCheck.UserReferencesId)
+	c.Next()
+}
+
 //AsaDMIN

@@ -55,20 +55,39 @@ func (s *CommentServiceImpl) Update(ctx context.Context, req *model.UpdateCommen
 		return nil, exception.InvalidArgument(errs)
 	}
 	body := req.ToEntity(ctx)
-	commentCheck, err := s.commentRepo.FindByID(ctx, s.db, body.ReferencesId)
+	commentCheck, err := s.commentRepo.FindByID(ctx, s.db, req.ReferencesId)
 	if err != nil {
 		return nil, exception.Internal("err", err)
 	}
 	if commentCheck == nil {
 		return nil, exception.NotFound("comment not found")
 	}
-	if commentCheck.UserReferencesId != nil {
-		if commentCheck.UserReferencesId != body.UserReferencesId {
-			return nil, exception.PermissionDenied("user/author does not match")
-		}
-	} else {
+
+	postCheck, err := s.postRepo.FindByID(ctx, s.db, commentCheck.PostReferencesId)
+	if err != nil {
+		return nil, exception.Internal("err", err)
+	}
+	if postCheck == nil {
+		return nil, exception.PermissionDenied("post does not exist")
+	}
+	//if the comment is anonymous, it cannot be updated
+	if commentCheck.UserReferencesId == nil {
 		return nil, exception.PermissionDenied("this comment was made anonymously, cannot be updated")
 	}
+
+	if commentCheck.UserReferencesId != nil {
+		if body.UserReferencesId == nil {
+			return nil, exception.InvalidArgument("this comment belongs to someone, cannot be updated anonymously")
+		}
+		isCommentAuthor := *commentCheck.UserReferencesId == *body.UserReferencesId
+		//if the comment is not anonymous, it can only be updated by the comment's author
+		if !isCommentAuthor {
+			return nil, exception.PermissionDenied("you do not have permission to delete this comment")
+		}
+	} else {
+		return nil, exception.PermissionDenied("no authorization")
+	}
+	body.Id = commentCheck.Id
 	if err := s.commentRepo.UpdateTx(ctx, tx, body); err != nil {
 		return nil, exception.Internal("err", err)
 	}
@@ -93,11 +112,21 @@ func (s *CommentServiceImpl) Delete(ctx context.Context, req *model.DeleteCommen
 		return nil, exception.Internal("err", err)
 	}
 	if commentCheck == nil {
-		return nil, exception.NotFound("post not found")
+		return nil, exception.NotFound("comment not found")
+	}
+	postCheck, err := s.postRepo.FindByID(ctx, s.db, commentCheck.PostReferencesId)
+	if err != nil {
+		return nil, exception.Internal("err", err)
+	}
+	if postCheck == nil {
+		return nil, exception.PermissionDenied("post does not exist")
 	}
 	if commentCheck.UserReferencesId != nil {
-		if *commentCheck.UserReferencesId != userReferences {
-			return nil, exception.PermissionDenied("user/author does not match")
+		isPostAuthor := postCheck.UserReferencesId == userReferences
+		isCommentAuthor := *commentCheck.UserReferencesId == userReferences
+
+		if !isPostAuthor && !isCommentAuthor {
+			return nil, exception.PermissionDenied("you do not have permission to delete this comment")
 		}
 	}
 	if err := s.commentRepo.DeleteByIDTx(ctx, tx, req.ReferencesId); err != nil {
@@ -132,7 +161,7 @@ func (s *CommentServiceImpl) Detail(ctx context.Context, req *model.GetCommentBy
 		return nil, exception.Internal(err.Error(), err)
 	}
 	if result == nil {
-		return nil, exception.NotFound("user not found, id: " + req.ReferencesId)
+		return nil, exception.NotFound("post not found, id: " + req.ReferencesId)
 	}
 	return &model.GetCommentByIDRes{
 		Comments: *result,

@@ -54,7 +54,7 @@ func (s *PostServiceImpl) Update(ctx context.Context, req *model.UpdatePostReq) 
 		return nil, exception.InvalidArgument(errs)
 	}
 	body := req.ToEntity(ctx)
-	postCheck, err := s.postRepo.FindByID(ctx, s.db, body.ReferencesId)
+	postCheck, err := s.postRepo.FindByID(ctx, s.db, req.ReferencesId)
 	if err != nil {
 		return nil, exception.Internal("err", err)
 	}
@@ -64,10 +64,10 @@ func (s *PostServiceImpl) Update(ctx context.Context, req *model.UpdatePostReq) 
 	if postCheck.UserReferencesId != body.UserReferencesId {
 		return nil, exception.PermissionDenied("user/author does not match")
 	}
+	body.Id = postCheck.Id
 	if err := s.postRepo.UpdateTx(ctx, tx, body); err != nil {
 		return nil, exception.Internal("err", err)
 	}
-
 	if err := tx.Commit().Error; err != nil {
 		return nil, exception.Internal("commit transaction", err)
 	}
@@ -125,7 +125,7 @@ func (s *PostServiceImpl) Detail(ctx context.Context, req *model.GetPostByIDReq)
 		return nil, exception.Internal(err.Error(), err)
 	}
 	if result == nil {
-		return nil, exception.NotFound("user not found, id: " + req.ReferencesId)
+		return nil, exception.NotFound("post not found, id: " + req.ReferencesId)
 	}
 	return &model.GetPostByIDRes{
 		Posts: *result,
